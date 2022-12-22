@@ -5,7 +5,10 @@ import axios from "axios";
 import * as api from "../config";
 
 
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENTION_COMPOSE__ || compose;
+const composeEnhancers =
+  typeof window === 'object' && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
+    ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({})
+    : compose;
 
 export const store = createStore(rootReducer, composeEnhancers(
   applyMiddleware(
