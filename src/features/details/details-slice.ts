@@ -1,20 +1,33 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import {Country, Extra, Status} from '../../types';
 
-export const loadCountryByName = createAsyncThunk(
-  '@@details/load-details-by-name',
-  (name, { extra: { client, api } }) => {
-    return client.get(api.searchByName(name));
-  },
-);
+export const loadCountryByName = createAsyncThunk<
+  { data: Country[] },
+  string,
+  { extra: Extra }
+>('@@details/load-details-by-name', (name, { extra: { client, api } }) => {
+  return client.get(api.searchByName(name));
+});
 
-export const loadNeighborsByBorder = createAsyncThunk(
+export const loadNeighborsByBorder = createAsyncThunk<
+  { data: Country[] },
+  string[],
+  { extra: Extra }
+>(
   '@@details/load-neighbors-by-border',
   (borders, { extra: { client, api } }) => {
     return client.get(api.filterByCode(borders));
   },
-)
+);
 
-const initialState = {
+type DetailsSlice = {
+  currentCountry: Country | null;
+  neighbors: string[];
+  status: Status;
+  error: string | null;
+}
+
+const initialState: DetailsSlice = {
   currentCountry: null,
   neighbors: [],
   status: 'idle',
@@ -34,24 +47,19 @@ export const detailSlice = createSlice({
         state.error = null;
       })
       .addCase(loadCountryByName.fulfilled, (state, action) => {
-        state.status = 'idle'
+        state.status = 'idle';
         state.currentCountry = action.payload.data[0];
       })
-      .addCase(loadCountryByName.rejected, (state, action) => {
+      .addCase(loadCountryByName.rejected, (state) => {
         state.status = 'rejected';
-        state.error = action.payload || action.meta.error;
+        state.error = 'Can not load data';
       })
       .addCase(loadNeighborsByBorder.fulfilled, (state, action) => {
-        state.status = 'idle'
-        state.neighbors = action.payload.data.map(country => country.name);
-      })
+        state.status = 'idle';
+        state.neighbors = action.payload.data.map((country) => country.name);
+      });
   },
 });
 
 export const { clearDetails } = detailSlice.actions;
 export default detailSlice.reducer;
-
-//selectors
-export const selectCurrentCountry = (state) => state.details.currentCountry;
-export const selectDetails = (state) => state.details;
-export const selectNeighbors = (state) => state.details.neighbors;
