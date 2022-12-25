@@ -1,5 +1,4 @@
 import { useSelector } from 'react-redux';
-import { selectControls } from '../controls/controls-slice';
 import { loadCountries } from './countries-slice';
 import { useEffect } from 'react';
 import {
@@ -8,6 +7,7 @@ import {
 } from './countries-selectors';
 import { RootState, useAppDispatch } from '../../store';
 import { Country } from '../../types';
+import {selectControls} from "../controls/controls-selectors";
 
 export const useCountries = (): [
   Country[],
